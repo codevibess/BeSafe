@@ -1,94 +1,91 @@
-/*
-LOCAL VARS = _name
-GLOBAL VARS = Name
-FUNCTION ARGUMENTS = name
-*/
 
-let MarkerList = null;
-let GoogleMap = null;
-let UserPosition = null;
-let Type = null;
-let Description = null;
-let DateAndTime = null;
+
+let globalMarkerList;
+let GoogleMap;
+let userPosition;
+let type;
+let description;
+let dateAndTime;
 
 
 function InitFirebase() {  //INIT OF FIREBASE DATABASE
+  
     var config = {
-        apiKey: "AIzaSyDf0HHMffQxBycIAA2O-V1QaCD0qZmbVk8",
-        authDomain: "besafe-2018.firebaseapp.com",
-        databaseURL: "https://besafe-2018.firebaseio.com",
-        projectId: "besafe-2018",
-        storageBucket: "",
-        messagingSenderId: "827771907476"
-    };
+        apiKey: "AIzaSyCXHmk5R5kNt97-WThdI354f_SIA10yQ9U",
+        authDomain: "besafe-197612.firebaseapp.com",
+        databaseURL: "https://besafe-197612.firebaseio.com",
+        projectId: "besafe-197612",
+        storageBucket: "besafe-197612.appspot.com",
+        messagingSenderId: "225644039878"
+      };
     firebase.initializeApp(config);
 
     console.log("InitFirebase");
 }
 
 function getFirebaseData() {  //FIREBASE DATA GETTER
-    var _markerList = [];
+    let markerList = [];
 
-    var _markers = firebase.database().ref('Marker');
-    _markers.on('value', function (snapshot) {
+    const markers = firebase.database().ref('Marker');
+    markers.on('value', function (snapshot) {
         snapshot.forEach(function (childSnapshot) {
-            _markerList.push(childSnapshot.val());
+            markerList.push(childSnapshot.val());
         });
     });
 
-    MarkerList = _markerList;
+    globalMarkerList = markerList;
     console.log("getFirebaseData");
 }
 
 function sendFirebaseData() {
-    let [_type, _description] = getTypeAndDescription();
-    let _dateAndTime = calculateDate();
+    let [type, description] = gettypeAnddescription();
+    let dateAndTime = calculateDate();
     // Reference to your entire Firebase database
-    var _myFirebase = firebase.database().ref();
+    const myFirebase = firebase.database().ref();
     // Get a reference to the recommendations object of your Firebase.
     // Note: this doesn't exist yet. But when we write to our Firebase using
     // this reference, it will create this object for us!
-    var _marker = _myFirebase.child("Marker");
+    const marker = myFirebase.child("Marker");
 
     // Push our first recommendation to the end of the list and assign it a
     // unique ID automatically.
-    _marker.push({
-        "type": _type,
-        "position": UserPosition,
-        "description": _description,
-        "dateAndTime": _dateAndTime
+    marker.push({
+        "type": type,
+        "position": userPosition,
+        "description": description,
+        "dateAndTime": dateAndTime
     });
-    sendToCommandCentralInfo(_type,_description,_dateAndTime);
+    sendToCommandCentralInfo(type, description, dateAndTime);
 
 }
 
 function formMsgSend() {
-    var msg = document.getElementById('msgSent');
+    const msg = document.getElementById('msgSent');
     msg.innerText = "Your application was sent successfull";
     msg.style = "display:inline-block;";
-    var frm = document.querySelector('#description_form');
+    const frm = document.querySelector('#description_form');
     frm.reset();  // Reset all form data
     setTimeout(function () { window.location.href = "#t3"; msg.style = "display:none"; }, 900);
 
     return false; // Prevent page refresh
 }
 function calculateDate() {
-    var _today = new Date();
-    var _dd = _today.getDate();
-    var _mm = _today.getMonth() + 1; //January is 0!
-    var _yyyy = _today.getFullYear();
-    var _hh = _today.getHours();
-    var _min = _today.getMinutes();
+     let today = new Date();
+     let dd = today.getDate();
+     let mm = today.getMonth() + 1; //January is 0!
+     let yyyy = today.getFullYear();
+     let hh = today.getHours();
+     let min = today.getMinutes();
 
-    if (_dd < 10) { _dd = '0' + _dd }
-    if (_mm < 10) { _mm = '0' + _mm }
-    _today = "Date: " + _mm + '/' + _dd + '/' + _yyyy + " Time: " + _hh + ":" + _min;
-    DateAndTime = _today;
-    return _today;
+    if (dd < 10) { dd = '0' + dd }
+    if (mm < 10) { mm = '0' + mm }
+    today = "Date: " + mm + '/' + dd + '/' + yyyy + " Time: " + hh + ":" + min;
+    dateAndTime = today;
+    return today;
 }
 
 function initMap() {
-    let _map = new google.maps.Map(document.getElementById('map'), { zoom: 12 });
+    let map = new google.maps.Map(document.getElementById('map'), { zoom: 15 });
 
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function (position) {
@@ -96,34 +93,34 @@ function initMap() {
                 lat: position.coords.latitude,
                 lng: position.coords.longitude
             };
-            UserPosition = pos;
+            userPosition = pos;
 
-            _map.setCenter(pos);
-            //            console.log(pos);
-            var _marker = new google.maps.Marker({
+            map.setCenter(pos);
+           
+            var marker = new google.maps.Marker({
                 position: pos,
-                map: _map,
+                map: map,
                 title: 'your location',
                 anchorPoint: new google.maps.Point(0, -2),
                 draggable: true
 
             });
-            google.maps.event.addListener(_marker, 'dragend', function () {
-                pos = { lat: _marker.getPosition().lat(), lng: _marker.getPosition().lng() }
-                UserPosition = pos;
-                handleMarkerInsert();
+            google.maps.event.addListener(marker, 'dragend', function () {
+                pos = { lat: marker.getPosition().lat(), lng: marker.getPosition().lng() }
+                userPosition = pos;
+                handleMarkerInsert(); 
                 window.location.href = "#t2";
 
             })
         }, function () {
-            handleLocationError(true, infoWindow, _map.getCenter());
+            handleLocationError(true, infoWindow, map.getCenter());
         });
     } else {
         // Browser doesn't support Geolocation
-        handleLocationError(false, infoWindow, _map.getCenter());
+        handleLocationError(false, infoWindow, map.getCenter());
     }
 
-    GoogleMap = _map;
+    GoogleMap = map;
     console.log("MapINIT");
 }
 
@@ -134,21 +131,19 @@ function handleLocationError(browserHasGeolocation, infoWindow, pos) {
         'Error: Your browser doesn\'t support geolocation.');
 }
 
-function getTypeAndDescription() {
-    var _type = document.getElementById("Select-Section").value;
-    var _description = document.getElementById('POST-name').value;
+function gettypeAnddescription() {
+    let type = document.getElementById("Select-Section").value;
+    let description = document.getElementById('POST-name').value;
 
-    //SETTING GLOBAL VARS
-    Type = _type;
-    Description = _description;
 
-    return [_type, _description];
+
+    return [type, description];
 }
 
 function handleMarkerInsert() {
-    if (MarkerList) {
-        MarkerList.forEach(marker => {
-            var temp_icon;
+    if (globalMarkerList) {
+        globalMarkerList.forEach(marker => {
+            let temp_icon;
             switch (marker.type) {
                 case 'Car accident':
                     temp_icon = './img/car-collision.png';
@@ -167,7 +162,7 @@ function handleMarkerInsert() {
                     break;
 
             }
-            var _map_marker = new google.maps.Marker({
+            let mapmarker = new google.maps.Marker({
                 position: marker.position,
                 map: GoogleMap,
                 title: marker.description,
@@ -182,12 +177,12 @@ function handleMarkerInsert() {
             </div>
             `;
 
-            var infowindow = new google.maps.InfoWindow({
+            let infowindow = new google.maps.InfoWindow({
                 content: contentString
             });
 
-            _map_marker.addListener('click', function () {
-                infowindow.open(GoogleMap, _map_marker);
+            mapmarker.addListener('click', function () {
+                infowindow.open(GoogleMap, mapmarker);
             });
             console.log("handleMarkerInsert");
         }
@@ -203,7 +198,7 @@ function sendToCommandCentralInfo(type, description, dateAndTime) {
             // Date, when event really occured
             "metaTimeStamp": "2018-03-01T15:00:00.000Z",
             // Label
-            "metaEventTypeLabel": "John"
+            "metaEventtypeLabel": "John"
         },
         "eventHeader": {
             // Unique event ID
@@ -219,7 +214,7 @@ function sendToCommandCentralInfo(type, description, dateAndTime) {
                 "longitude": 19.941407
             },
             // detailed description - visible in map popup
-            "detailedDescription": "Officer John - found a homeless person taking drugs.",
+            "detaileddescription": "Officer John - found a homeless person taking drugs.",
             "icon": {
                 // icon url - could be custom source, or predefined (format MsiIcon://{name})
                 "url": "MsiIcon://ic_unit_police_sirens"
@@ -235,31 +230,31 @@ function sendToCommandCentralInfo(type, description, dateAndTime) {
                     // Title of Attachment
                     "name": "Incident Location (external)",
                     // content type
-                    // see https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types
-                    "contentType": "application/link",
+                    // see https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIMEtypes
+                    "contenttype": "application/link",
                     // url to source
                     "url": "https://goo.gl/maps/Yiz4TLDBF3L2"
                 }, {
                     "name": "Incident image",
-                    "contentType": "image/jpeg",
+                    "contenttype": "image/jpeg",
                     "url": "https://www.motorolasolutions.com/content/dam/msi/images/en-xw/brand_stories/lte-broadband-lex-brandstory-1160x308.jpg"
                 }
             ]
         }
     };
- 
-    var settings = {
+
+    let settings = {
         "async": true,
         "crossDomain": true,
         "url": "https://hacknarok.release.commandcentral.com/",
         "method": "PUT",
         "headers": {
             "Authorization": "Basic QWlkN21zdU5nenU5ZUVq",
-            "Content-Type": "application/json"
-                },
+            "Content-type": "application/json"
+        },
         "data": eventBody
     }
- 
+
     $.ajax(settings).done(function (response) {
         console.log(response);
     });
