@@ -2,13 +2,7 @@
 <hr>
 <b>Functionality:</b>
 <ul>
-  <li>Tracking the accidents:
-   <p>gunshot</p>
-   <p>car accident</p>
-   <p>etc</p>
-   <p></p>
-   <p></p>
-</blockquote></li>
+  <li>Tracking the accidents(gunshot, murders, car accident, etc)</li>
   <li>Mark yourself as witness of accident(you can leave your contact which is visible only for police & etc)</li>
   <li>[FUTURE] Login using facebook</li>
   <li>[FUTURE] Automatic notification of any accidents near you / notifications feed in accordance to current or chosen location(city-district)</li>
